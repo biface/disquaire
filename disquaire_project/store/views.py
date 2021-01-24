@@ -2,10 +2,15 @@
 from django.http import HttpResponse
 from django.template import loader
 
+# Import local ORM Objects
+
+from .models import Album, Artist, Contact, Booking
+
+
 # Create your views here.
 
 def index(request):
-    message = "Salut, tout le monde !"
+    albums = Album.objects.filter(available=True).order_by('-created_at')[:12]
     template = loader.get_template('store/index.html')
-    return HttpResponse(template.render(request=request))
-
+    context = {'albums': albums}
+    return HttpResponse(template.render(context, request=request))

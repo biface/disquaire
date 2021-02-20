@@ -48,7 +48,7 @@
 #
 #    return HttpResponse(message)
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from .models import Album, Artist, Contact, Booking
 
@@ -71,6 +71,27 @@ def detail(request, album_id):
     album = Album.objects.get(pk=album_id)
     artists = [artist.name for artist in album.artists.all()]
     artists_name = " ".join(artists)
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        name = request.POST.get('name')
+
+        contact = Contact.objects.filter(email=email)
+        if not contact.exists():
+            Contact.objects.create(email=email, name=name)
+        # Tu as oublié qu'un filter n'est pas un objet Contact, mais QUerySet
+        else:
+            contact=contact.first()
+
+        album = get_object_or_404(Album, id=album_id)
+        booking = Booking.objects.create(contact=contact, album=album)
+        album.available = False
+        album.save()
+
+        context = {
+            'album_title': album.title
+        }
+        return render(request, 'store/merci.html', context)
+
     context = {
         'album_title': album.title,
         'artists_name': artists_name,

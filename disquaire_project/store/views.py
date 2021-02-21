@@ -50,7 +50,7 @@
 
 from django.shortcuts import render, get_object_or_404
 from .models import Album, Artist, Contact, Booking
-from .forms import ContactForm
+from .forms import ContactForm, ParagraphErrorList
 
 
 def index(request):
@@ -78,7 +78,7 @@ def detail(request, album_id):
         'thumbnail': album.picture
     }
     if request.method == 'POST':
-        form = ContactForm(request.POST)
+        form = ContactForm(request.POST, error_class=ParagraphErrorList)
         if form.is_valid():
             email = form.cleaned_data['email']
             name = form.cleaned_data['name']

@@ -4,6 +4,10 @@ from django.db import models
 # Create your models here.
 
 class Artist(models.Model):
+
+    class Meta:
+        verbose_name = "artiste"
+
     name = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
@@ -11,6 +15,10 @@ class Artist(models.Model):
 
 
 class Contact(models.Model):
+
+    class Meta:
+        verbose_name = "prospect"
+
     email = models.EmailField(max_length=100)
     name = models.CharField(max_length=200)
 
@@ -19,7 +27,11 @@ class Contact(models.Model):
 
 
 class Album(models.Model):
-    reference = models.IntegerField(null=True)
+
+    class Meta:
+        verbose_name = "disque"
+
+    reference = models.IntegerField('référence', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     available = models.BooleanField(default=True)
     title = models.CharField(max_length=200)
@@ -31,6 +43,10 @@ class Album(models.Model):
 
 
 class Booking(models.Model):
+
+    class Meta:
+        verbose_name = "réservation"
+
     created_at = models.DateTimeField(auto_now_add=True)
     contacted = models.BooleanField(default=False)
     album = models.OneToOneField(Album, on_delete=models.CASCADE)

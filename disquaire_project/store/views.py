@@ -1,10 +1,10 @@
-#from django.http import HttpResponse
-#from django.template import loader
+# from django.http import HttpResponse
+# from django.template import loader
 #
-#from .models import Album, Artist, Contact, Booking
+# from .models import Album, Artist, Contact, Booking
 #
 #
-#def index(request):
+# def index(request):
 #    albums = Album.objects.filter(available=True).order_by('-created_at')[:12]
 #    formatted_albums = ["<li>{}</li>".format(album.title) for album in albums]
 #    message = """<ul>{}</ul>""".format("\n".join(formatted_albums))
@@ -14,19 +14,19 @@
 #    }
 #    return HttpResponse(template.render(context, request))
 #
-#def listing(request):
+# def listing(request):
 #    albums = Album.objects.filter(available=True)
 #    formatted_albums = ["<li>{}</li>".format(album.title) for album in albums]
 #    message = """<ul>{}</ul>""".format("\n".join(formatted_albums))
 #    return HttpResponse(message)
 #
-#def detail(request, album_id):
+# def detail(request, album_id):
 #    album = Album.objects.get(pk=album_id)
 #    artists = " ".join([artist.name for artist in album.artists.all()])
 #    message = "Le nom de l'album est {}. Il a été écrit par {}".format(album.title, artists)
 #    return HttpResponse(message)
 #
-#def search(request):
+# def search(request):
 #    query = request.GET.get('query')
 #    if not query:
 #        albums = Album.objects.all()
@@ -61,12 +61,14 @@ def index(request):
     }
     return render(request, 'store/index.html', context)
 
+
 def listing(request):
     albums = Album.objects.filter(available=True)
     context = {
         'albums': albums
     }
     return render(request, 'store/listing.html', context)
+
 
 def detail(request, album_id):
     album = get_object_or_404(Album, pk=album_id)
@@ -116,6 +118,7 @@ def detail(request, album_id):
     context['errors'] = form.errors.items()
     return render(request, 'store/detail.html', context)
 
+
 def search(request):
     query = request.GET.get('query')
     if not query:
@@ -125,7 +128,7 @@ def search(request):
         albums = Album.objects.filter(title__icontains=query)
     if not albums.exists():
         albums = Album.objects.filter(artists__name__icontains=query)
-    title = "Résultats pour la requête %s"%query
+    title = "Résultats pour la requête %s" % query
     context = {
         'albums': albums,
         'title': title

@@ -49,6 +49,7 @@
 #    return HttpResponse(message)
 
 from django.shortcuts import render, get_object_or_404
+from django.db import transaction, IntegrityError
 from .models import Album, Artist, Contact, Booking
 from .forms import ContactForm, ParagraphErrorList
 
@@ -83,35 +84,36 @@ def detail(request, album_id):
             email = form.cleaned_data['email']
             name = form.cleaned_data['name']
 
-            contact = Contact.objects.filter(email=email)
-            if not contact.exists():
-                # If a contact is not registered, create a new one.
-                contact = Contact.objects.create(
-                    email=email,
-                    name=name
-                )
-            else:
-                contact = contact.first()
+            try:
+                with transaction.atomic():
+                    contact = Contact.objects.filter(email=email)
+                    if not contact.exists():
+                        # If a contact is not registered, create a new one.
+                        contact = Contact.objects.create(
+                            email=email,
+                            name=name
+                        )
+                    else:
+                        contact = contact.first()
 
-            album = get_object_or_404(Album, id=album_id)
-            booking = Booking.objects.create(
-                contact=contact,
-                album=album
-            )
-            album.available = False
-            album.save()
-            context = {
-                'album_title': album.title
-            }
-            return render(request, 'store/merci.html', context)
-        else:
-            # Form data doesn't match the expected format.
-            # Add errors to the template.
-            context['errors'] = form.errors.items()
+                    album = get_object_or_404(Album, id=album_id)
+                    booking = Booking.objects.create(
+                        contact=contact,
+                        album=album
+                    )
+                    album.available = False
+                    album.save()
+                    context = {
+                        'album_title': album.title
+                    }
+                    return render(request, 'store/merci.html', context)
+            except IntegrityError:
+                form.errors['internal'] = "Une erreur interne est survenue. Veuillez réessayer"
     else:
         form = ContactForm()
 
     context['form'] = form
+    context['errors'] = form.errors.items()
     return render(request, 'store/detail.html', context)
 
 def search(request):
